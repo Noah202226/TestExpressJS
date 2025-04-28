@@ -1,15 +1,33 @@
 import express from "express";
+import { fileURLToPath } from "url";
 import path from "path";
-import posts from "./routes/posts.js"; // Import the posts router
+import product from "./routes/products.js"; // Import the posts router
 import home from "./routes/home.js"; // Import the home router
+
+import logger from "./middleware/logger.js";
+import errorHandler from "./middleware/error.js"; // Import the error handling middleware
+import notfound from "./middleware/notfound.js"; // Import the notfound middleware
+import mongoose from "mongoose";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// app.use(express.static(path.join(__dirname, "public"))); // Serve static files from the "public" directory
+app.use(express.json()); // Middleware to parse JSON request bodies
+app.use(express.urlencoded({ extended: false })); // Middleware to parse URL-encoded request bodies
+
+const __filename = fileURLToPath(import.meta.url); // Get the current file name
+const __dirname = path.dirname(__filename); // Get the current directory name
+app.use(express.static(path.join(__dirname, "public"))); // Serve static files from the "public" directory
+
+// Middleware
+app.use(logger); // Use the logger middleware for all routes
 
 app.use("/", home); // Use the home router for the root path
-app.use("/api/posts", posts);
+app.use("/api/products", product);
+
+// Error handling middleware is below of the route definitions to catch any errors that occur in the application
+app.use(notfound); // Use the notfound middleware for 404 errors
+app.use(errorHandler); // Use the error handling middleware
 
 // Utility function to create clickable links in terminal
 function createClickableLink(url, text) {
@@ -20,7 +38,6 @@ function createClickableLink(url, text) {
 function format(text, color) {
   return `${colors[color]}${text}${colors.reset}`;
 }
-
 // Function to print all registered routes
 // ANSI color codes
 const colors = {
@@ -39,7 +56,7 @@ function printRoutes() {
   const routes = [
     { method: "GET", path: "/" },
     { method: "GET", path: "/api/users" },
-    { method: "POST", path: "/api/users" },
+    { method: "POST", path: "/api/products" },
     { method: "GET", path: "/api/products" },
   ];
 
@@ -66,17 +83,19 @@ function printRoutes() {
   console.log(format("\nClick on any GET route to open in browser", "gray"));
 }
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("Connected to MongoDB");
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
 
-  console.log(format("\n📋 API Routes:", "bold"));
-
-  console.log(
-    `→ Home: ${createClickableLink(
-      `http://localhost:${PORT}/`,
-      "http://localhost:" + PORT + "/"
-    )}`
-  );
-
-  printRoutes(); // Call the function to print all routes
-});
+      printRoutes(); // Call the function to print all routes
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
