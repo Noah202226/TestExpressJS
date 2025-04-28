@@ -4,12 +4,15 @@ const button = document.querySelector("#get-all-posts");
 // Get all posts
 async function getAllProducts() {
   try {
-    const response = await fetch("http://localhost:8000/api/products", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      "https://testexpressjs-2whg.onrender.com/api/products",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (!response.ok) throw new Error("Network response was not ok");
     const data = await response.json();
     console.log(data);
