@@ -17,7 +17,6 @@ const PORT = process.env.PORT || 3000;
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // Middleware to parse JSON request bodies
 app.use(express.urlencoded({ extended: false })); // Middleware to parse URL-encoded request bodies
-app.use();
 
 const __filename = fileURLToPath(import.meta.url); // Get the current file name
 const __dirname = path.dirname(__filename); // Get the current directory name
