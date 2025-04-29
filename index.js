@@ -1,4 +1,6 @@
 import express from "express";
+import cors from "cors";
+
 import { fileURLToPath } from "url";
 import path from "path";
 import product from "./routes/products.js"; // Import the posts router
@@ -12,8 +14,10 @@ import mongoose from "mongoose";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // Middleware to parse JSON request bodies
 app.use(express.urlencoded({ extended: false })); // Middleware to parse URL-encoded request bodies
+app.use();
 
 const __filename = fileURLToPath(import.meta.url); // Get the current file name
 const __dirname = path.dirname(__filename); // Get the current directory name
